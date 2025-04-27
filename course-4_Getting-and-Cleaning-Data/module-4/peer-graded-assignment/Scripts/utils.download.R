@@ -7,7 +7,14 @@ install_if_missing <- function(package_name) {
     if (!require(package_name) && !is_installed(package_name)) {
         print(paste("Installing ", package_name))
         r_mirror_nl <- "https://mirrors.evoluso.com/CRAN/"
-        install.packages(package_name, repos = r_mirror_nl)
+
+        # get around permissions issues (Windows)
+        path_to_lib_dir <- paste("temp", "lib", sep = "/")
+        if (!dir.exists(path_to_lib_dir)) {
+            dir.create(path_to_lib_dir)
+        }
+        .libPaths(path_to_lib_dir)
+        install.packages(package_name, repos = r_mirror_nl, lib = path_to_lib_dir)
     }
 }
 

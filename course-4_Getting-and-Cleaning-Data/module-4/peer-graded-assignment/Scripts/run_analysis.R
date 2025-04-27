@@ -92,6 +92,12 @@ if (is_debug) str_big(merged_data)
 short_summary(merged_data)
 
 print_section("2. Extracts only the measurements on the mean and standard deviation for each measurement.")
+install_if_missing("dplyr")
+suppressMessages(library(dplyr))
+selected_columns_data <- merged_data %>%
+  select(Y, contains("std"), contains("mean"))
+if (is_debug) str_big(selected_columns_data)
+short_summary(selected_columns_data)
 
 print_section("3. Uses descriptive activity names to name the activities in the data set.")
 
