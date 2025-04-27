@@ -99,6 +99,78 @@ load_or_get_merged_data <- function() {
   return(my_data)
 }
 
+clean_column_names <- function(new_names) {
+  # Replace the first column "" with "Record"
+  # new_names[1] <- "Record"
+
+  # De-abbreviate t
+  new_names <- sub("^t", "TimeDomainSignal_", new_names)
+  new_names <- gsub("angle_t", "angle_TimeDomainSignal_", new_names)
+
+  # De-abbreviate f
+  new_names <- sub("^f", "FastFourierTransform_", new_names)
+
+  # De-abbreviate Acc
+  new_names <- gsub("Acc", "Acceleration", new_names)
+
+  # De-abbreviate Mag
+  new_names <- gsub("Mag", "Magnitude", new_names)
+
+  # De-abbreviate std
+  new_names <- gsub("std", "StandardDeviation", new_names)
+
+  # Tidy 'gravity'
+  new_names <- gsub("gravity", "Gravity", new_names)
+
+  # 8. Replace (,) with underscores _
+  new_names <- gsub("[(),]", "_", new_names)
+
+  # De-abbreviate X/Y/Z
+  # - avoid touching the "Y" column itself (second column)
+  new_names[-2] <- gsub("-X", "_XAxis", new_names[-2])
+  new_names[-2] <- gsub("-Y", "_YAxis", new_names[-2])
+  new_names[-2] <- gsub("-Z", "_ZAxis", new_names[-2])
+
+  new_names[-2] <- gsub("_X$", "_XAxis", new_names[-2])
+  new_names[-2] <- gsub("_Y$", "_YAxis", new_names[-2])
+  new_names[-2] <- gsub("_Z$", "_ZAxis", new_names[-2])
+
+  new_names[-2] <- gsub("_X_", "_XAxis_", new_names[-2])
+  new_names[-2] <- gsub("_Y_", "_YAxis_", new_names[-2])
+  new_names[-2] <- gsub("_Z_", "_ZAxis_", new_names[-2])
+
+  new_names[-2] <- gsub("angle_tBody", "angle_TimeDomainSignal_Body", new_names[-2])
+
+  # Tidy duplication in names
+  new_names <- gsub("-mean", "_mean", new_names)
+  new_names <- gsub("BodyBody", "Body", new_names)
+
+  # Tidy underscores
+  new_names <- gsub("_+$", "", new_names)
+  new_names <- gsub("__+", "_", new_names)
+  return(new_names)
+}
+
+add_record_column <- function(df) {
+  df$Record <- seq(1, nrow(df))
+  return(df)
+}
+
+sort_columns <- function(df) {
+  first_columns <- c("Record", "Subject", "ActivityLabel")
+
+  # Sort the remaining columns alphabetically
+  remaining_columns <- setdiff(colnames(df), first_columns)
+
+  remaining_columns_sorted <- sort(remaining_columns)
+
+  new_column_order <- c(first_columns, remaining_columns_sorted)
+
+  # Set the dataframe columns
+  df <- df[, new_column_order]
+  return(df)
+}
+
 print_section("1. Merges the training and the test sets to create one data set.")
 print_section("Read Test and Train data")
 merged_data <- load_or_get_merged_data()
@@ -122,32 +194,37 @@ selected_columns_data <- selected_columns_data %>%
 if (is_debug) str_big(selected_columns_data)
 
 print_section("4. Appropriately labels the data set with descriptive variable names.")
-print("(done already)")
+selected_columns_data <- selected_columns_data %>% select(-Y) # drop Y
+colnames(selected_columns_data) <- clean_column_names(colnames(selected_columns_data))
+selected_columns_data <- add_record_column(selected_columns_data)
+selected_columns_data <- sort_columns(selected_columns_data)
 path_to_output_dir <- "Data"
-path_to_merged_with_std_mean <- paste(path_to_output_dir, "merged_std-and-mean.csv", sep = "/")
-print(paste("OUTPUT: Saving the merged data ->", path_to_merged_with_std_mean))
-write.csv(selected_columns_data, path_to_merged_with_std_mean, row.names = TRUE)
+path_to_merged_with_std_mean <- paste(path_to_output_dir, "merged_standard-deviation_and_mean.csv", sep = "/")
+print(paste("Processed Data (OUTPUT): Saving the merged data ->", path_to_merged_with_std_mean))
+write.csv(selected_columns_data, path_to_merged_with_std_mean, row.names = FALSE)
 
 print_section("5. From the data set in step 4, creates a second, independent tidy data set with the average of each variable for each activity and each subject.")
 print("Filter to mean columns + ActivityLabel, Subject")
 selected_columns_data_means <- selected_columns_data %>%
   select(contains("mean"), "ActivityLabel", "Subject")
 
-print(colnames(selected_columns_data_means)) # xxx
+# print(colnames(selected_columns_data_means))
 selected_columns_data_means_grouped <- selected_columns_data_means %>%
   group_by(Subject, ActivityLabel) %>%
   summarise(
     across(
-      .cols = where(is.numeric),  # Only average numeric columns
+      .cols = where(is.numeric), # Only average numeric columns
       .fns = mean,
-      .names = "avg_{.col}"
+      .names = "mean_{.col}"
     ),
     .groups = "drop"
   )
+selected_columns_data_means_grouped <- add_record_column(selected_columns_data_means_grouped)
+selected_columns_data_means_grouped <- sort_columns(selected_columns_data_means_grouped)
 
 path_to_selected_columns_data_means <- paste(path_to_output_dir, "merged_means-by-activity-and-subject.csv", sep = "/")
-print(paste("OUTPUT: Saving the means data, grouped by Activity and Subject ->", path_to_selected_columns_data_means))
-write.csv(selected_columns_data_means_grouped, path_to_selected_columns_data_means, row.names = TRUE)
+print(paste("Processed Data (OUTPUT): Saving the means data, grouped by Activity and Subject ->", path_to_selected_columns_data_means))
+write.csv(selected_columns_data_means_grouped, path_to_selected_columns_data_means, row.names = FALSE)
 
-print_section("Done")
+print_section("Done - Processed Data")
 print(list.files(path_to_output_dir, full.names = TRUE))
