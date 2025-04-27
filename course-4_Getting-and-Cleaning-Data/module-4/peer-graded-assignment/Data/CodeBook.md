@@ -10,7 +10,7 @@ A description of how the data was collected:
 
 ### Processed Data - Merged with Standard Deviation and Mean Variables
 
-- [merged_standard-deviation_and_mean.csv](./merged_standard-deviation_and_mean.csv)
+- [merged_standard-deviation_and_mean.txt](./merged_standard-deviation_and_mean.txt)
 
 1. The variables (including units) in the data set
 
@@ -39,6 +39,7 @@ Other columns have a naming convention:
 - the columns were renamed to replace all abbreviations, and clean up characters like (,)
 - a Record variable (an index) was added
 - the columns were re-ordered ("Record","Subject","ActivityLabel" first, then alphabetically sorted)
+- saved as a table (.txt) file
 
 ### Processed Data - Merged with Means by Activity and Subject
 
@@ -62,6 +63,7 @@ Other columns have a naming convention:
 
 2. The summary choices made
 
-- the merged_standard-deviation_and_mean.csv dataset was taken as the starting point
+- the merged_standard-deviation_and_mean.txt dataset was taken as the starting point
 - the data was grouped by (Subject, ActivityLabel), aggregating the other columns by taking their mean
 - the new mean columns were renamed to have a mean_ prefix, for clarity
+- saved as a table (.txt) file

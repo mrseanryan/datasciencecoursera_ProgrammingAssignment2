@@ -199,9 +199,9 @@ colnames(selected_columns_data) <- clean_column_names(colnames(selected_columns_
 selected_columns_data <- add_record_column(selected_columns_data)
 selected_columns_data <- sort_columns(selected_columns_data)
 path_to_output_dir <- "Data"
-path_to_merged_with_std_mean <- paste(path_to_output_dir, "merged_standard-deviation_and_mean.csv", sep = "/")
+path_to_merged_with_std_mean <- paste(path_to_output_dir, "merged_standard-deviation_and_mean.txt", sep = "/")
 print(paste("Processed Data (OUTPUT): Saving the merged data ->", path_to_merged_with_std_mean))
-write.csv(selected_columns_data, path_to_merged_with_std_mean, row.names = FALSE)
+write.table(selected_columns_data, path_to_merged_with_std_mean, row.names = FALSE)
 
 print_section("5. From the data set in step 4, creates a second, independent tidy data set with the average of each variable for each activity and each subject.")
 print("Filter to mean columns + ActivityLabel, Subject")
