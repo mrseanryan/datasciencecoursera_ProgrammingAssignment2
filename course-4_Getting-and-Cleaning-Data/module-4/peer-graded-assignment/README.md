@@ -5,6 +5,10 @@
 Required to submit:
 1) a tidy data set
 2) script for performing the analysis
+
+- see [Scripts/run_analysis.R](./Scripts/run_analysis.R)
+- to execute, you can use the `go.sh` bash script
+
 3) a code book that describes the variables, the data, and any transformations or work that you performed to clean up the data called CodeBook.md.
 4) This README.md, explaining how all of the scripts work and how they are connected.
 

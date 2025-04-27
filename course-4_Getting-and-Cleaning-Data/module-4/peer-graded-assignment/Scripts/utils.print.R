@@ -10,6 +10,10 @@ print_section <- function(message) {
     print_line()
 }
 
+short_summary <- function(my_data) {
+    cat("Rows:", nrow(my_data), "Columns:", ncol(my_data), "\n")
+}
+
 str_big <- function(my_data) {
     str(my_data, list.len = nrow(my_data))  # disable truncation
 }
