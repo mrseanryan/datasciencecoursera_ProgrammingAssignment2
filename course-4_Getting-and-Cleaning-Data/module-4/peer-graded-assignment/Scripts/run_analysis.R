@@ -43,6 +43,13 @@ get_merged_data <- function() {
   test_data['Y'] = test_labels['Y']
   if (is_debug) str_big(test_data)
 
+  print("Read in the test subject ids (apply column names)")
+  path_to_test_subjects <- paste(path_to_test, "subject_test.txt", sep = "/")
+  test_subjects = read.table(path_to_test_subjects, header = FALSE, col.names = 'Subject')
+  # Add the labels as a new column
+  test_data['Subject'] = test_subjects['Subject']
+  if (is_debug) str_big(test_data)
+
   print("Read in the training data (apply column names)")
   path_to_train_data <- paste(path_to_train, "X_train.txt", sep = "/")
   # Since data is space-separated and wide, read it as whitespace-delimited
@@ -56,6 +63,13 @@ get_merged_data <- function() {
   train_data['Y'] = train_labels['Y']
   if (is_debug) str_big(train_data)
 
+  print("Read in the train subject ids (apply column names)")
+  path_to_train_subjects <- paste(path_to_train, "subject_train.txt", sep = "/")
+  train_subjects = read.table(path_to_train_subjects, header = FALSE, col.names = 'Subject')
+  # Add the labels as a new column
+  train_data['Subject'] = train_subjects['Subject']
+  if (is_debug) str_big(train_data)
+
   print_section("Merge Test and Train data")
   # install_if_missing("dplyr")
   # library(dplyr)
@@ -66,23 +80,23 @@ get_merged_data <- function() {
 }
 
 load_or_get_merged_data <- function() {
-    # optimization for repeated runs - reload the data from a previous run
-    path_to_merged_dir <- paste(path_to_data_dir, "merged")
-    path_to_merged_data <- paste(path_to_merged_dir, "merged-data.rds", sep = "/")
+  # optimization for repeated runs - reload the data from a previous run
+  path_to_merged_dir <- paste(path_to_data_dir, "merged")
+  path_to_merged_data <- paste(path_to_merged_dir, "merged-data.rds", sep = "/")
 
-    if (file.exists(path_to_merged_data)) {
-        print("Reading previously merged data")
-        return(readRDS(path_to_merged_data))
-    }
+  if (file.exists(path_to_merged_data)) {
+    print("Reading previously merged data")
+    return(readRDS(path_to_merged_data))
+  }
 
-    my_data <- get_merged_data()
-    print("Saving merged data, for future runs")
+  my_data <- get_merged_data()
+  print("Saving merged data, for future runs")
 
-    if (!dir.exists(path_to_merged_dir)) {
-        dir.create(path_to_merged_dir)
-    }
-    saveRDS(my_data, path_to_merged_data)
-    return(my_data)
+  if (!dir.exists(path_to_merged_dir)) {
+    dir.create(path_to_merged_dir)
+  }
+  saveRDS(my_data, path_to_merged_data)
+  return(my_data)
 }
 
 print_section("1. Merges the training and the test sets to create one data set.")
@@ -95,7 +109,7 @@ print_section("2. Extracts only the measurements on the mean and standard deviat
 install_if_missing("dplyr")
 suppressMessages(library(dplyr))
 selected_columns_data <- merged_data %>%
-  select(Y, contains("std"), contains("mean"))
+  select(Y, contains("std"), contains("mean"), contains("Subject"))
 if (is_debug) str_big(selected_columns_data)
 short_summary(selected_columns_data)
 
@@ -108,5 +122,32 @@ selected_columns_data <- selected_columns_data %>%
 if (is_debug) str_big(selected_columns_data)
 
 print_section("4. Appropriately labels the data set with descriptive variable names.")
+print("(done already)")
+path_to_output_dir <- "Data"
+path_to_merged_with_std_mean <- paste(path_to_output_dir, "merged_std-and-mean.csv", sep = "/")
+print(paste("OUTPUT: Saving the merged data ->", path_to_merged_with_std_mean))
+write.csv(selected_columns_data, path_to_merged_with_std_mean, row.names = TRUE)
 
 print_section("5. From the data set in step 4, creates a second, independent tidy data set with the average of each variable for each activity and each subject.")
+print("Filter to mean columns + ActivityLabel, Subject")
+selected_columns_data_means <- selected_columns_data %>%
+  select(contains("mean"), "ActivityLabel", "Subject")
+
+print(colnames(selected_columns_data_means)) # xxx
+selected_columns_data_means_grouped <- selected_columns_data_means %>%
+  group_by(Subject, ActivityLabel) %>%
+  summarise(
+    across(
+      .cols = where(is.numeric),  # Only average numeric columns
+      .fns = mean,
+      .names = "avg_{.col}"
+    ),
+    .groups = "drop"
+  )
+
+path_to_selected_columns_data_means <- paste(path_to_output_dir, "merged_means-by-activity-and-subject.csv", sep = "/")
+print(paste("OUTPUT: Saving the means data, grouped by Activity and Subject ->", path_to_selected_columns_data_means))
+write.csv(selected_columns_data_means_grouped, path_to_selected_columns_data_means, row.names = TRUE)
+
+print_section("Done")
+print(list.files(path_to_output_dir, full.names = TRUE))
