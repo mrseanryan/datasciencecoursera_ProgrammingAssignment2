@@ -33,6 +33,6 @@ The original data for the project:
 ## Processed Data (Output)
 
 - [Data/merged_standard-deviation_and_mean.csv](./Data/merged_standard-deviation_and_mean.csv)
-- [Data/merged_means-by-activity-and-subject.csv](./Data/merged_means-by-activity-and-subject.csv)
+- [Data/merged_means-by-activity-and-subject.txt](./Data/merged_means-by-activity-and-subject.txt)
 
 See the [Code Book](./Data/CodeBook.md).

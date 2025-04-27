@@ -42,7 +42,7 @@ Other columns have a naming convention:
 
 ### Processed Data - Merged with Means by Activity and Subject
 
-- [merged_means-by-activity-and-subject.csv](./merged_means-by-activity-and-subject.csv)
+- [merged_means-by-activity-and-subject.txt](./merged_means-by-activity-and-subject.txt)
 
 1. The variables (including units) in the data set
 

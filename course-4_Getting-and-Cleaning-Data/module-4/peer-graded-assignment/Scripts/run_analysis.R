@@ -222,9 +222,9 @@ selected_columns_data_means_grouped <- selected_columns_data_means %>%
 selected_columns_data_means_grouped <- add_record_column(selected_columns_data_means_grouped)
 selected_columns_data_means_grouped <- sort_columns(selected_columns_data_means_grouped)
 
-path_to_selected_columns_data_means <- paste(path_to_output_dir, "merged_means-by-activity-and-subject.csv", sep = "/")
+path_to_selected_columns_data_means <- paste(path_to_output_dir, "merged_means-by-activity-and-subject.txt", sep = "/")
 print(paste("Processed Data (OUTPUT): Saving the means data, grouped by Activity and Subject ->", path_to_selected_columns_data_means))
-write.csv(selected_columns_data_means_grouped, path_to_selected_columns_data_means, row.names = FALSE)
+write.table(selected_columns_data_means_grouped, path_to_selected_columns_data_means, row.names = FALSE)
 
 print_section("Done - Processed Data")
 print(list.files(path_to_output_dir, full.names = TRUE))
