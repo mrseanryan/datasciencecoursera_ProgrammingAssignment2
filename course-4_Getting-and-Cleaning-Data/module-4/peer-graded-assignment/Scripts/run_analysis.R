@@ -100,6 +100,12 @@ if (is_debug) str_big(selected_columns_data)
 short_summary(selected_columns_data)
 
 print_section("3. Uses descriptive activity names to name the activities in the data set.")
+print("Read in the activity labels")
+path_to_activity_labels <- paste(path_to_data_dir, "activity_labels.txt", sep = "/")
+activity_labels = read.table(path_to_activity_labels, header = FALSE, col.names = c('id', 'ActivityLabel'))
+selected_columns_data <- selected_columns_data %>%
+  mutate(ActivityLabel = activity_labels$ActivityLabel[match(Y, activity_labels$id)])
+if (is_debug) str_big(selected_columns_data)
 
 print_section("4. Appropriately labels the data set with descriptive variable names.")
 
