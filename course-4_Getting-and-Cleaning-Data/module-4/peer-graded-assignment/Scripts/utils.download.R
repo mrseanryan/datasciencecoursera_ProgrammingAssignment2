@@ -37,8 +37,6 @@ download_if_missing <- function(data_dir, data_filename, data_url) {
   }
   list.files(data_dir)
 
-  dest_file <- paste(data_dir, data_filename, sep = "/")
-
   print(paste("dest_file: ", dest_file))
 
   return(dest_file)
